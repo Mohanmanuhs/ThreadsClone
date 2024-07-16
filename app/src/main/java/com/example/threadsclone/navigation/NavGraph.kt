@@ -53,14 +53,14 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             NotificationScreen()
         }
         composable(NavRoutes.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(navController)
         }
         composable(NavRoutes.AddThreads.route){
 
-            AddThreadsScreen()
+            AddThreadsScreen(navController)
         }
         composable(NavRoutes.BottomNav.route) {
-            BottomNavScreen()
+            BottomNavScreen(navController)
         }
         composable(NavRoutes.Login.route){
 

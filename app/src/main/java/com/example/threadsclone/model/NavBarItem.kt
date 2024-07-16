@@ -1,4 +1,4 @@
-package com.example.threadsclone.navigation.model
+package com.example.threadsclone.model
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

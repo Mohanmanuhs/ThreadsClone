@@ -20,12 +20,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.threadsclone.model.NavBarItem
 import com.example.threadsclone.navigation.NavRoutes
-import com.example.threadsclone.navigation.model.NavBarItem
 
 
 @Composable
-fun BottomNavScreen(modifier: Modifier = Modifier) {
+fun BottomNavScreen(navHostController: NavHostController,modifier: Modifier = Modifier) {
     val navController1 = rememberNavController()
 
     Scaffold(bottomBar = {
@@ -46,10 +46,10 @@ fun BottomNavScreen(modifier: Modifier = Modifier) {
                 NotificationScreen()
             }
             composable(NavRoutes.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(navHostController)
             }
             composable(NavRoutes.AddThreads.route){
-                AddThreadsScreen()
+                AddThreadsScreen(navController1)
             }
         }
     }
