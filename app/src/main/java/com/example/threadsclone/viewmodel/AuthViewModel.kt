@@ -11,6 +11,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -73,6 +74,7 @@ class AuthViewModel:ViewModel() {
     }
 
     private fun saveImage(email: String, password: String, name: String, username: String, bio: String, imageUri: Uri, uid: String?,context:Context) {
+
         val uploadTask = imageRef.putFile(imageUri)
         uploadTask.addOnSuccessListener {
             imageRef.downloadUrl.addOnSuccessListener {
@@ -92,7 +94,15 @@ class AuthViewModel:ViewModel() {
         uid: String?,
         context:Context
     ) {
-        val user = UserModel(email, password, name, username, bio, toString,uid!!)
+        val firestoreDb = Firebase.firestore
+        val followersRef = firestoreDb.collection("followers").document(uid!!)
+        val followingRef = firestoreDb.collection("following").document(uid)
+
+        followingRef.set(mapOf("followingIds" to listOf<String>()))
+        followersRef.set(mapOf("followerIds" to listOf<String>()))
+
+
+        val user = UserModel(email, password, name, username, bio, toString, uid)
         userRef.child(uid).setValue(user)
             .addOnSuccessListener {
                 SharedPref.saveData(name,email,username,context,bio,toString)

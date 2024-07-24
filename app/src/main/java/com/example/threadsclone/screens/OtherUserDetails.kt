@@ -14,14 +14,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,42 +27,26 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.threadsclone.item_view.ThreadItem
-import com.example.threadsclone.model.UserModel
-import com.example.threadsclone.navigation.NavRoutes
-import com.example.threadsclone.util.SharedPref
-import com.example.threadsclone.viewmodel.AuthViewModel
 import com.example.threadsclone.viewmodel.ProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 @Composable
-fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifier, profileViewModel: ProfileViewModel= viewModel(), authViewModel: AuthViewModel = viewModel()) {
-    val context = LocalContext.current
-    val firebaseUser by authViewModel.firebaseUser.collectAsState()
+fun OtherUserDetails(navController: NavHostController,uId:String, modifier: Modifier = Modifier, profileViewModel: ProfileViewModel= viewModel()) {
     val threads by profileViewModel.threads.collectAsState()
-
+    val user by profileViewModel.users.collectAsState()
     val followerList by profileViewModel.followersList.collectAsState()
     val followingList by profileViewModel.followingList.collectAsState()
+
     var currentUserId = ""
     if (FirebaseAuth.getInstance().currentUser != null) {
         currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
     }
+   profileViewModel.fetchThreads(uId)
+    profileViewModel.fetchUser(uId)
+    profileViewModel.getFollowers(uId)
+    profileViewModel.getFollowing(uId)
 
-    if(currentUserId!="") {
-        profileViewModel.getFollowers(currentUserId)
-        profileViewModel.getFollowing(currentUserId)
-    }
-
-    val user = UserModel(
-        name = SharedPref.getName(context),
-        username = SharedPref.getUserName(context),
-        bio = SharedPref.getBio(context),
-        toString = SharedPref.getImageUrl(context)
-    )
-    Firebase.auth.currentUser?.let { profileViewModel.fetchThreads(it.uid) }
-
-    LaunchedEffect(firebaseUser) {
+    /*LaunchedEffect(firebaseUser) {
         if(firebaseUser==null){
             navController.navigate(NavRoutes.Login.route){
                 popUpTo(navController.graph.startDestinationId){
@@ -73,7 +55,7 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifie
                 launchSingleTop=true
             }
         }
-    }
+    }*/
     LazyColumn(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         item {
             Box(modifier = modifier
@@ -81,20 +63,22 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifie
                 .fillMaxWidth()) {
                 Column(modifier = Modifier.align(Alignment.TopStart)) {
                     Text(
-                        text = SharedPref.getName(context),
+                        text = user.name,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
-                    Text(text = SharedPref.getUserName(context), fontWeight = FontWeight.Bold)
-                    Text(text = SharedPref.getBio(context))
+                    Text(text = user.username, fontWeight = FontWeight.Bold)
+                    Text(text = user.bio)
                     Row {
                         Text(text = "${followerList.size} Followers")
                         Text(text = "${followingList.size} Following")
                     }
-                    TextButton(onClick = { /*TODO*/ }) {
-                        Text(modifier = Modifier.clickable {
-                                authViewModel.logout()
-                            }, text = "LogOut")
+                    TextButton(onClick = {
+                        if(currentUserId!="") {
+                            profileViewModel.followUsers(uId, currentUserId)
+                        }
+                    }) {
+                        Text(modifier = Modifier, text = if(followerList.contains(currentUserId))"Following" else "Follow")
                     }
                 }
                 Image(

@@ -10,6 +10,7 @@ import com.example.threadsclone.screens.BottomNavScreen
 import com.example.threadsclone.screens.HomeScreen
 import com.example.threadsclone.screens.LoginScreen
 import com.example.threadsclone.screens.NotificationScreen
+import com.example.threadsclone.screens.OtherUserDetails
 import com.example.threadsclone.screens.ProfileScreen
 import com.example.threadsclone.screens.RegisterScreen
 import com.example.threadsclone.screens.SearchScreen
@@ -33,6 +34,8 @@ sealed class NavRoutes(val route:String){
     data object AddThreads:NavRoutes("AddThreads")
 
     data object Notification:NavRoutes("Notification")
+
+    data object OtherUserDetails:NavRoutes("OtherUserDetails/{data}")
 }
 
 
@@ -47,7 +50,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
             HomeScreen()
         }
         composable(NavRoutes.Search.route) {
-            SearchScreen()
+            SearchScreen(navController)
         }
         composable(NavRoutes.Notification.route) {
             NotificationScreen()
@@ -68,6 +71,10 @@ fun NavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
         }
         composable(NavRoutes.Register.route) {
             RegisterScreen(navController)
+        }
+        composable(NavRoutes.OtherUserDetails.route) {
+            val data = it.arguments!!.getString("data")
+            OtherUserDetails(navController,data!!)
         }
 
     }

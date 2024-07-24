@@ -34,9 +34,4 @@ object SharedPref {
         val sharedPref = context.getSharedPreferences("users", Context.MODE_PRIVATE)
         return sharedPref.getString("imageUrl","")!!
     }
-
-
-
-
-
 }

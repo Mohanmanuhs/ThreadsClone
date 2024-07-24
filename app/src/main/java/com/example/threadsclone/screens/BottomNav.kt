@@ -25,7 +25,7 @@ import com.example.threadsclone.navigation.NavRoutes
 
 
 @Composable
-fun BottomNavScreen(navHostController: NavHostController,modifier: Modifier = Modifier) {
+fun BottomNavScreen(navHostController: NavHostController, modifier: Modifier = Modifier) {
     val navController1 = rememberNavController()
 
     Scaffold(bottomBar = {
@@ -40,7 +40,7 @@ fun BottomNavScreen(navHostController: NavHostController,modifier: Modifier = Mo
                 HomeScreen()
             }
             composable(NavRoutes.Search.route) {
-                SearchScreen()
+                SearchScreen(navHostController)
             }
             composable(NavRoutes.Notification.route) {
                 NotificationScreen()
@@ -48,7 +48,7 @@ fun BottomNavScreen(navHostController: NavHostController,modifier: Modifier = Mo
             composable(NavRoutes.Profile.route) {
                 ProfileScreen(navHostController)
             }
-            composable(NavRoutes.AddThreads.route){
+            composable(NavRoutes.AddThreads.route) {
                 AddThreadsScreen(navController1)
             }
         }
@@ -64,25 +64,25 @@ fun MyBottomBar(navController1: NavHostController) {
         ), NavBarItem(
             "Search", NavRoutes.Search.route, Icons.Rounded.Search
         ), NavBarItem(
-            "Profile", NavRoutes.Profile.route, Icons.Rounded.Person
+            "Add Threads", NavRoutes.AddThreads.route, Icons.Rounded.Add
         ), NavBarItem(
             "Notification", NavRoutes.Notification.route, Icons.Rounded.Notifications
         ), NavBarItem(
-            "Add Threads", NavRoutes.AddThreads.route, Icons.Rounded.Add
+            "Profile", NavRoutes.Profile.route, Icons.Rounded.Person
         )
     )
     BottomAppBar {
         listOfNavBarItems.forEach {
             val selected = it.route == backStackEntry.value?.destination?.route
 
-            NavigationBarItem(selected = selected,
-                onClick = { navController1.navigate(it.route){
-                    popUpTo(navController1.graph.findStartDestination().id){
+            NavigationBarItem(selected = selected, onClick = {
+                navController1.navigate(it.route) {
+                    popUpTo(navController1.graph.findStartDestination().id) {
                         saveState = true
                     }
-                    launchSingleTop=true
-                } },
-                icon = { Icon(imageVector = it.icon, contentDescription = it.title) })
+                    launchSingleTop = true
+                }
+            }, icon = { Icon(imageVector = it.icon, contentDescription = it.title) })
         }
     }
 }
