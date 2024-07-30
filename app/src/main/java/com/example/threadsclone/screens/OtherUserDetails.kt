@@ -1,10 +1,12 @@
 package com.example.threadsclone.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +30,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.threadsclone.item_view.ThreadItem
+import com.example.threadsclone.ui.theme.backgroundColor
+import com.example.threadsclone.ui.theme.rowBgColor
+import com.example.threadsclone.ui.theme.txtColor
 import com.example.threadsclone.viewmodel.ProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -41,51 +47,42 @@ fun OtherUserDetails(navController: NavHostController,uId:String, modifier: Modi
     if (FirebaseAuth.getInstance().currentUser != null) {
         currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
     }
-   profileViewModel.fetchThreads(uId)
+    profileViewModel.fetchThreads(uId)
     profileViewModel.fetchUser(uId)
     profileViewModel.getFollowers(uId)
     profileViewModel.getFollowing(uId)
 
-    /*LaunchedEffect(firebaseUser) {
-        if(firebaseUser==null){
-            navController.navigate(NavRoutes.Login.route){
-                popUpTo(navController.graph.startDestinationId){
-                    inclusive=true
-                }
-                launchSingleTop=true
-            }
-        }
-    }*/
-    LazyColumn(modifier = modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    LazyColumn(modifier = modifier.fillMaxSize().background(backgroundColor), horizontalAlignment = Alignment.CenterHorizontally) {
         item {
-            Box(modifier = modifier
-                .padding(20.dp)
-                .fillMaxWidth()) {
-                Column(modifier = Modifier.align(Alignment.TopStart)) {
+            Box(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .background(rowBgColor)
+                    .padding(20.dp)
+            ) {
+                Column(modifier = Modifier.align(Alignment.CenterStart)) {
                     Text(
                         text = user.name,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,color = txtColor
                     )
-                    Text(text = user.username, fontWeight = FontWeight.Bold)
-                    Text(text = user.bio)
-                    Row {
-                        Text(text = "${followerList.size} Followers")
-                        Text(text = "${followingList.size} Following")
-                    }
+                    Text(text = user.username,color = txtColor)
+                    Text(text = user.bio,color = txtColor)
+                    Text(text = "${followerList.size} Followers",color = txtColor)
+                    Text(text = "${followingList.size} Following",color = txtColor)
                     TextButton(onClick = {
                         if(currentUserId!="") {
                             profileViewModel.followUsers(uId, currentUserId)
                         }
                     }) {
-                        Text(modifier = Modifier, text = if(followerList.contains(currentUserId))"Following" else "Follow")
+                        Text(modifier = Modifier, text = if(followerList.contains(currentUserId))"Following" else "Follow",color = Color(0xFF378fe9))
                     }
                 }
                 Image(
                     painter = rememberAsyncImagePainter(model = user.toString),
                     contentDescription = "dp",
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
+                        .align(Alignment.CenterEnd)
                         .padding(5.dp)
                         .size(120.dp)
                         .clip(CircleShape)
@@ -94,11 +91,13 @@ fun OtherUserDetails(navController: NavHostController,uId:String, modifier: Modi
                         },
                     contentScale = ContentScale.Crop
                 )
-
+            }
+            Row(modifier = Modifier.padding(top = 5.dp).fillMaxWidth(.9f)) {
+                Text(text = "Posts :-",color = txtColor)
             }
         }
         items(threads){pair->
-            ThreadItem(thread = pair, user = user)
+            ThreadItem({},thread = pair, user = user, isFollow = false)
         }
     }
 

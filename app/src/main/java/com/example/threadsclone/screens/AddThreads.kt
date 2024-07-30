@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -35,11 +38,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +54,8 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.example.threadsclone.R
 import com.example.threadsclone.navigation.NavRoutes
+import com.example.threadsclone.ui.theme.txtColor
+import com.example.threadsclone.ui.theme.txtHintColor
 import com.example.threadsclone.util.SharedPref
 import com.example.threadsclone.viewmodel.AddThreadViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -85,8 +92,8 @@ fun AddThreadsScreen(navController: NavHostController,modifier: Modifier = Modif
             }
         }
     }
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        Column(modifier = Modifier.fillMaxWidth(.95f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = {
                     navController.navigate(NavRoutes.Home.route) {
@@ -101,40 +108,35 @@ fun AddThreadsScreen(navController: NavHostController,modifier: Modifier = Modif
                     modifier = Modifier,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    text = "New Thread"
+                    text = "New Thread",color = txtColor
                 )
             }
-            Row(modifier=Modifier.padding(start = 15.dp),verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier=Modifier.padding(top = 10.dp)) {
                 Image(
-                    painter = if(SharedPref.getImageUrl(context)=="") painterResource(id = R.drawable.person) else
+                    painter = if(SharedPref.getImageUrl(context)=="") painterResource(id = R.drawable.baseline_account_circle_24) else
                         rememberAsyncImagePainter(model = SharedPref.getImageUrl(context))
                     , contentDescription = "person image",
                     modifier = Modifier
-                        .size(40.dp)
+                        .align(Alignment.Top)
+                        .size(45.dp)
                         .clip(CircleShape)
                         .clickable {
 
                         },
                     contentScale = ContentScale.Crop
                 )
-                Text(
-                    modifier = Modifier.padding(start = 10.dp),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Normal,
-                    text = SharedPref.getName(context)
-                )
-            }
-            Column(modifier = Modifier.padding(start = 55.dp)) {
-                Box(modifier = Modifier.padding(start=15.dp)) {
-                    if (thread.isEmpty()) Text(
+            Column(modifier = Modifier.padding(start = 0.dp)) {
+                Box(modifier = Modifier.padding(start=15.dp, bottom = 30.dp)) {
+                    if (thread.isEmpty())
+                        Text(
                         modifier = Modifier.align(Alignment.Center),
-                        color = Color.Gray,
+                        color = txtHintColor,
                         text = "Start a thread ..."
                     )
                     BasicTextField(
-                        modifier = Modifier.padding(top = 3.dp),
+                        modifier = modifier.padding(top = 3.dp),
                         value = thread,
-                        onValueChange = { thread = it })
+                        onValueChange = { thread = it },cursorBrush = SolidColor(txtColor), textStyle = TextStyle.Default.copy(color = txtColor, fontSize = 18.sp))
                 }
                 if(imageUri==null) {
                     IconButton(onClick = {
@@ -158,42 +160,34 @@ fun AddThreadsScreen(navController: NavHostController,modifier: Modifier = Modif
                     Box {
                         Image(
                             painter = rememberAsyncImagePainter(model = imageUri),
-                            contentDescription = "person image",
-                            modifier = Modifier
+                            contentDescription = "upload image", contentScale = ContentScale.FillWidth,
+                            modifier = Modifier.fillMaxWidth().clip(shape = RoundedCornerShape(10.dp))
                         )
                         IconButton(modifier = Modifier.align(Alignment.TopEnd), onClick = {
                             imageUri=null
                         }) {
-                            Icon(imageVector = Icons.Rounded.Clear, contentDescription = "cancel")
+                            Icon(modifier = Modifier.background(Color.Black),imageVector = Icons.Rounded.Clear,tint = Color.White, contentDescription = "cancel")
                         }
                     }
                 }
 
             }
+            }
 
 
         }
-        Row(modifier= Modifier
-            .padding(start = 10.dp, bottom = 20.dp)
-            .fillMaxWidth()
-            .align(Alignment.BottomStart)) {
-            Text(
-                modifier = Modifier,
-                color = Color.Black,
-                text = "Anyone can Reply"
-            )
+        FloatingActionButton(modifier= Modifier.padding(20.dp).align(Alignment.BottomEnd),onClick = { /*TODO*/ }) {
             TextButton(onClick = {
                 if(imageUri==null){
                     addThreadViewModel.saveData(thread,FirebaseAuth.getInstance().currentUser!!.uid,"")
                 }else{
                     addThreadViewModel.saveImage(thread, imageUri!!,FirebaseAuth.getInstance().currentUser!!.uid)
                 }
-
             }) {
                 Text(
                     modifier = Modifier,
-                    color = Color.Blue,
-                    text = "Post"
+                    color = txtColor,
+                    text = "Post", fontWeight = FontWeight.SemiBold
                 )
             }
         }
